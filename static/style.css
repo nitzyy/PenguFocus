@@ -1,0 +1,287 @@
+:root {
+    --bg: #171717;
+    --panel: #222222;
+    --panel-2: #2a2a2a;
+    --text: #f2f2f2;
+    --muted: #a6a6a6;
+    --green: #7dd36f;
+    --red: #ff7d7d;
+    --accent: #7c5cff;
+    --border: #343434;
+    --shadow: 0 10px 30px rgba(0, 0, 0, 0.25);
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: Inter, Segoe UI, Arial, sans-serif;
+}
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+}
+
+.container {
+    width: min(1200px, 92%);
+    margin: 24px auto;
+}
+
+/* ── Navbar ── */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 18px;
+    padding: 18px 24px;
+    box-shadow: var(--shadow);
+}
+
+.brand {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-size: 1.3rem;
+    font-weight: 700;
+}
+
+.logo { font-size: 1.6rem; }
+
+.nav-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* ── Buttons ── */
+.nav-btn,
+.actions-bar button,
+.chart-card button,
+.summary-card button {
+    background: #2e2e2e;
+    color: var(--text);
+    border: 1px solid var(--border);
+    padding: 10px 16px;
+    border-radius: 14px;
+    cursor: pointer;
+    text-decoration: none;
+    transition: 0.2s ease;
+    font-size: 0.95rem;
+}
+
+.nav-btn:hover,
+.actions-bar button:hover,
+.chart-card button:hover,
+.summary-card button:hover {
+    transform: translateY(-1px);
+    border-color: #4a4a4a;
+    background: #353535;
+}
+
+.nav-btn.danger {
+    background: #412626;
+    color: #ffb3b3;
+}
+
+.nav-btn.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+}
+
+/* ── Hero ── */
+.hero {
+    margin-top: 28px;
+    padding: 8px 4px;
+}
+
+.eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    font-size: 0.8rem;
+    color: var(--muted);
+    margin-bottom: 10px;
+}
+
+.hero h1 {
+    font-size: 2rem;
+    line-height: 1.2;
+    max-width: 900px;
+}
+
+.subtext {
+    margin-top: 8px;
+    color: var(--muted);
+    max-width: 800px;
+}
+
+/* ── Stats grid ── */
+.stats-grid {
+    margin-top: 22px;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+}
+
+.stat-card,
+.panel,
+.summary-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+}
+
+.stat-card {
+    padding: 22px;
+    min-height: 150px;
+}
+
+.stat-label {
+    color: var(--muted);
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+}
+
+.stat-card h2 {
+    font-size: 2rem;
+    margin-bottom: 8px;
+}
+
+.stat-card .fail { color: var(--red); }
+
+.stat-note {
+    color: var(--muted);
+    font-size: 0.9rem;
+}
+
+/* ── Actions bar ── */
+.actions-bar {
+    margin-top: 22px;
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* ── Panels ── */
+.panel {
+    margin-top: 18px;
+    padding: 22px;
+}
+
+.panel-header h3 {
+    font-size: 1.2rem;
+    margin-bottom: 6px;
+}
+
+.panel-header p {
+    color: var(--muted);
+    margin-bottom: 18px;
+}
+
+.hidden { display: none; }
+
+/* ── Table ── */
+.table-wrap { overflow-x: auto; }
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 900px;
+}
+
+th, td {
+    text-align: left;
+    padding: 14px 12px;
+    border-bottom: 1px solid var(--border);
+    font-size: 0.95rem;
+}
+
+th {
+    color: var(--muted);
+    font-weight: 600;
+}
+
+.empty-state {
+    text-align: center;
+    color: var(--muted);
+    padding: 20px;
+}
+
+/* ── Badges ── */
+.badge {
+    display: inline-block;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 0.8rem;
+    font-weight: 700;
+}
+
+.badge.success {
+    background: rgba(125, 211, 111, 0.15);
+    color: var(--green);
+}
+
+.badge.danger {
+    background: rgba(255, 125, 125, 0.15);
+    color: var(--red);
+}
+
+/* ── Analytics grid ── */
+.analytics-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);  /* 2 cols for bar + pie */
+    gap: 16px;
+}
+
+/* ── Chart cards — single definition ── */
+.chart-card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+    padding: 20px;
+}
+
+.chart-card h4 {
+    margin-bottom: 14px;
+    font-size: 1rem;
+    color: var(--text);
+}
+
+/* The wrapper div in analytics.html controls height; canvas fills it */
+.chart-card canvas {
+    display: block;
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* ── Summary card ── */
+.summary-card {
+    padding: 22px;
+    display: grid;
+    gap: 12px;
+    color: var(--text);
+}
+
+/* ── Responsive ── */
+@media (max-width: 1000px) {
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .analytics-grid { grid-template-columns: 1fr; }
+
+    .navbar {
+        flex-direction: column;
+        gap: 16px;
+        align-items: flex-start;
+    }
+}
+
+@media (max-width: 700px) {
+    .stats-grid { grid-template-columns: 1fr; }
+
+    .hero h1 { font-size: 1.5rem; }
+}

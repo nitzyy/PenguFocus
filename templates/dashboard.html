@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PenguFocus Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar">
+            <div class="brand">
+                <span class="logo">🐧</span>
+                <span class="title">PenguFocus</span>
+            </div>
+            <div class="nav-actions">
+                <a href="/" class="nav-btn">Dashboard</a>
+                <a href="/analytics" class="nav-btn">Analytics</a>
+                <button class="nav-btn" onclick="startFocus()">Start Focus</button>
+                <button class="nav-btn danger" onclick="clearAll()">Start Fresh</button>
+            </div>
+        </nav>
+
+        <section class="hero">
+            <div>
+                <p class="eyebrow">Today’s Overview</p>
+                <h1>{{ last_message }}</h1>
+                <p class="subtext">Track focus sessions, view today’s progress, and launch backend graphs when needed.</p>
+            </div>
+        </section>
+
+        <section class="stats-grid">
+            <div class="stat-card">
+                <p class="stat-label">Total focus time</p>
+                <h2>{{ total_focus_mins }}m</h2>
+                <p class="stat-note">Today’s completed sessions</p>
+            </div>
+
+            <div class="stat-card">
+                <p class="stat-label">Sessions completed</p>
+                <h2>{{ completed_count }}</h2>
+                <p class="stat-note">Successfully finished</p>
+            </div>
+
+            <div class="stat-card">
+                <p class="stat-label">Sessions failed</p>
+                <h2 class="fail">{{ failed_count }}</h2>
+                <p class="stat-note">Stopped or closed early</p>
+            </div>
+
+            <div class="stat-card">
+                <p class="stat-label">Success rate</p>
+                <h2>{{ success_rate }}%</h2>
+                <p class="stat-note">Penguin mood score</p>
+            </div>
+        </section>
+
+        <section class="actions-bar">
+            <button onclick="showSection('history')">Today</button>
+            <button onclick="showSection('summary')">Daily Summary</button>
+            <button onclick="showSection('analytics')">Analytics</button>
+        </section>
+
+        <section id="history" class="panel">
+            <div class="panel-header">
+                <h3>Today’s Sessions</h3>
+                <p>Each completed or failed session is saved in MongoDB.</p>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Task</th>
+                            <th>Time (sec)</th>
+                            <th>Status</th>
+                            <th>Reason</th>
+                            <th>Started</th>
+                            <th>Ended</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in sessions %}
+                        <tr>
+                            <td>{{ s.task }}</td>
+                            <td>{{ s.time }}</td>
+                            <td>
+                                {% if s.status == "Completed" %}
+                                    <span class="badge success">Completed</span>
+                                {% else %}
+                                    <span class="badge danger">Failed</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ s.ended_reason }}</td>
+                            <td>{{ s.started_at }}</td>
+                            <td>{{ s.ended_at }}</td>
+                        </tr>
+                        {% endfor %}
+                        {% if sessions|length == 0 %}
+                        <tr>
+                            <td colspan="6" class="empty-state">No sessions yet.</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <section id="summary" class="panel hidden">
+            <div class="panel-header">
+                <h3>Daily Summary</h3>
+                <p>Quick productivity snapshot for today.</p>
+            </div>
+            <div class="summary-card">
+                <p>Completed: <strong>{{ completed_count }}</strong></p>
+                <p>Failed: <strong>{{ failed_count }}</strong></p>
+                <p>Total Focus Minutes: <strong>{{ total_focus_mins }}</strong></p>
+                <p>Success Rate: <strong>{{ success_rate }}%</strong></p>
+            </div>
+        </section>
+
+        <section id="analytics" class="panel hidden">
+            <div class="panel-header">
+                <h3>Analytics</h3>
+                <p>These buttons trigger backend plots in your current setup.</p>
+            </div>
+            <div class="analytics-grid">
+                <div class="chart-card">
+                    <h4>Time per Task</h4>
+                    <button onclick="openGraph()">Open Graph</button>
+                </div>
+                <div class="chart-card">
+                    <h4>Completion Split</h4>
+                    <button onclick="openStatusGraph()">Open Status Graph</button>
+                </div>
+                <div class="chart-card">
+                    <h4>Productivity Summary</h4>
+                    <button onclick="openDailySummary()">Open Daily Summary</button>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <script>
+        function showSection(id) {
+            document.querySelectorAll(".panel").forEach(el => el.classList.add("hidden"));
+            document.getElementById(id).classList.remove("hidden");
+        }
+
+        function startFocus() {
+            fetch("/start-focus", { method: "POST" })
+                .then(() => alert("Focus session started in Tkinter window."));
+        }
+
+        function clearAll() {
+            if (confirm("Warning: this will clear ALL previous data permanently. Continue?")) {
+                fetch("/api/sessions/clear", { method: "POST" })
+                    .then(() => location.reload());
+            }
+        }
+
+        function callPlot(name) {
+            fetch(`/plot/${name}`, { method: "POST" })
+                .then(res => res.json())
+                .then(data => {
+                    if (!data.ok) {
+                        alert("Plot error: " + data.error);
+                    } else {
+                        alert("Plot opened.");
+                    }
+                })
+                .catch(err => alert("Request failed: " + err));
+        }
+
+        function openGraph() {
+            callPlot("graph");
+        }
+
+        function openStatusGraph() {
+            callPlot("status");
+        }
+
+        function openDailySummary() {
+            callPlot("summary");
+        }
+    </script>
+</body>
+</html>

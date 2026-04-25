@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PenguFocus Analytics</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <nav class="navbar">
+            <div class="brand">
+                <span class="logo">🐧</span>
+                <span class="title">PenguFocus</span>
+            </div>
+            <div class="nav-actions">
+                <a href="/" class="nav-btn">Dashboard</a>
+                <a href="/analytics" class="nav-btn active">Analytics</a>
+            </div>
+        </nav>
+
+        <section class="hero">
+            <p class="eyebrow">Analytics</p>
+            <h1>Visualize your focus sessions</h1>
+            <p class="subtext">Time per task and completed vs failed sessions for today.</p>
+        </section>
+
+        <section class="stats-grid">
+            <div class="stat-card">
+                <p class="stat-label">Total Sessions</p>
+                <h2>{{ completed + failed }}</h2>
+                <p class="stat-note">Today</p>
+            </div>
+            <div class="stat-card">
+                <p class="stat-label">Completed</p>
+                <h2 style="color: var(--green);">{{ completed }}</h2>
+                <p class="stat-note">Successfully finished</p>
+            </div>
+            <div class="stat-card">
+                <p class="stat-label">Failed</p>
+                <h2 class="fail">{{ failed }}</h2>
+                <p class="stat-note">Stopped or closed early</p>
+            </div>
+            <div class="stat-card">
+                <p class="stat-label">Success Rate</p>
+                <h2>{{ ((completed / (completed + failed)) * 100) | round | int if (completed + failed) > 0 else 0 }}%</h2>
+                <p class="stat-note">Penguin mood score</p>
+            </div>
+        </section>
+
+        <section class="panel">
+            <div class="panel-header">
+                <h3>Charts</h3>
+                <p>Visual breakdown of today's focus sessions.</p>
+            </div>
+            <div class="analytics-grid">
+                <div class="chart-card">
+                    <h4>Time per Task (seconds)</h4>
+                    <div style="position: relative; height: 300px;">
+                        <canvas id="taskChart"></canvas>
+                    </div>
+                </div>
+                <div class="chart-card">
+                    <h4>Completed vs Failed</h4>
+                    <div style="position: relative; height: 300px;">
+                        <canvas id="statusChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {% if sessions %}
+        <section class="panel">
+            <div class="panel-header">
+                <h3>Session Breakdown</h3>
+                <p>All tasks recorded today.</p>
+            </div>
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Task</th>
+                            <th>Time (sec)</th>
+                            <th>Status</th>
+                            <th>Reason</th>
+                            <th>Started</th>
+                            <th>Ended</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in sessions %}
+                        <tr>
+                            <td>{{ s.task }}</td>
+                            <td>{{ s.time }}</td>
+                            <td>
+                                {% if s.status == "Completed" %}
+                                    <span class="badge success">Completed</span>
+                                {% else %}
+                                    <span class="badge danger">Failed</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ s.ended_reason }}</td>
+                            <td>{{ s.started_at }}</td>
+                            <td>{{ s.ended_at }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+        {% else %}
+        <section class="panel">
+            <p class="empty-state">🐧 No sessions recorded today yet. Start a focus session!</p>
+        </section>
+        {% endif %}
+    </div>
+
+    <script>
+        const taskLabels     = {{ task_labels | tojson }};
+        const taskValues     = {{ task_values | tojson }};
+        const completedCount = {{ completed  | tojson }};
+        const failedCount    = {{ failed     | tojson }};
+        const hasTaskData    = taskLabels.length > 0;
+        const hasStatusData  = completedCount > 0 || failedCount > 0;
+
+        // Bar chart — time per task
+        new Chart(document.getElementById('taskChart'), {
+            type: 'bar',
+            data: {
+                labels: hasTaskData ? taskLabels : ['No data yet'],
+                datasets: [{
+                    label: 'Seconds',
+                    data: hasTaskData ? taskValues : [0],
+                    backgroundColor: '#7c5cff',
+                    borderRadius: 6,
+                    borderSkipped: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { ticks: { color: '#a6a6a6' }, grid: { color: '#2e2e2e' } },
+                    y: { beginAtZero: true, ticks: { color: '#a6a6a6' }, grid: { color: '#2e2e2e' } }
+                }
+            }
+        });
+
+        // Pie chart — completed vs failed
+        new Chart(document.getElementById('statusChart'), {
+            type: 'pie',
+            data: {
+                labels: hasStatusData ? ['Completed', 'Failed'] : ['No data yet'],
+                datasets: [{
+                    data: hasStatusData ? [completedCount, failedCount] : [1],
+                    backgroundColor: hasStatusData ? ['#7dd36f', '#ff7d7d'] : ['#333333'],
+                    borderWidth: 0,
+                    hoverOffset: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        position: 'bottom',
+                        labels: { color: '#a6a6a6', padding: 16 }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
